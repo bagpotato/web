@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+
+body { font-family: 'Archivo', system-ui, sans-serif; background: #efefef; color: #0a0a0a; font-size: 17px; line-height: 1.6; }
+
+::selection { background: #000; color: #efefef; }
+
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+.wordmark { font-weight: 800; font-stretch: 100%; letter-spacing: -0.045em; line-height: 0.86; font-size: clamp(3rem, 12.5vw, 10.5rem); text-transform: uppercase; }
+
+.wm-line { display: block; overflow: hidden; padding-bottom: 0.05em; }
+
+.wm-ch { display: inline-block; transform: translateY(105%); animation: rise 0.9s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i) * 45ms + 150ms); }
+
+.ln { opacity: 0; animation: lineIn 0.5s ease-out forwards; animation-delay: var(--d, 0ms); }
+
+.dots { background-image: radial-gradient(#202020 1px, transparent 1px); background-size: 20px 20px; }
+
+.scan { position: relative; }
+
+.scan::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: blink 1.8s steps(1) infinite; }
+
+.led { animation: blink 1.6s steps(1) infinite; }
+
+.flow { stroke-dasharray: 4 8; animation: dash 1.1s linear infinite; }
+
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 4.5s ease-in-out infinite; }
+
+.mail { background: linear-gradient(currentColor, currentColor) left bottom / 0 4px no-repeat; transition: background-size 0.45s cubic-bezier(.2, .8, .2, 1); padding-bottom: 0.12em; }
+
+.mail:hover, .mail:focus-visible { background-size: 100% 4px; }
+
+.game-canvas { background-image: radial-gradient(#2a2a2a 1px, transparent 1px); background-size: 20px 20px; }
+
+.fade-in { animation: fadeIn 0.18s ease-out; }
+
+.panel-in { animation: panelIn 0.28s cubic-bezier(.2, .8, .2, 1); }
+
+.bug-pop { animation: popIn 0.18s ease-out; }
+
+@keyframes rise { to { transform: none; } }
+
+@keyframes lineIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@keyframes blink { 50% { opacity: 0.25; } }
+
+@keyframes dash { to { stroke-dashoffset: -24; } }
+
+@keyframes draw { 0% { stroke-dashoffset: 1; } 55%, 100% { stroke-dashoffset: 0; } }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes panelIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+
+@keyframes popIn { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .wm-ch { transform: none; }
+  .ln { opacity: 1; }
+  .draw { stroke-dashoffset: 0; }
+}
