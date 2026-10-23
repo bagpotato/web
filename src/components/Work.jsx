@@ -4,9 +4,9 @@ import { LINKS } from '../data/links.js';
 
 export default function Work() {
   return (
-    <section id="proyectos" className="scroll-mt-16 px-6 py-28 md:px-10 md:py-40">
+    <section id="projects" className="scroll-mt-16 px-6 py-28 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <h2 className="text-4xl font-medium tracking-tight md:text-6xl">Proyectos</h2>
+        <h2 className="text-4xl font-medium tracking-tight md:text-6xl">Projects</h2>
         <ul className="mt-14 grid gap-4 md:grid-cols-3">
           {WORK.map(({ repo, title, text, tags, Art, wide }) => (
             <li key={repo} className={wide ? 'md:col-span-2' : ''}>

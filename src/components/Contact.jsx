@@ -4,10 +4,10 @@ import Magnetic from './Magnetic.jsx';
 
 export default function Contact() {
   return (
-    <footer id="contacto" className="scroll-mt-16 border-t border-line px-6 pb-8 pt-28 md:px-10 md:pt-40">
+    <footer id="contact" className="scroll-mt-16 border-t border-line px-6 pb-8 pt-28 md:px-10 md:pt-40">
       <div className="mx-auto max-w-[1400px]">
-        <h2 className="text-[clamp(2.8rem,9vw,8rem)] font-medium leading-[0.95] tracking-[-0.04em]">¿Hablamos?</h2>
-        <p className="mt-6 max-w-md text-mute">Si tienes un proyecto o una propuesta, escríbeme.</p>
+        <h2 className="text-[clamp(2.8rem,9vw,8rem)] font-medium leading-[0.95] tracking-[-0.04em]">Let’s talk</h2>
+        <p className="mt-6 max-w-md text-mute">Got a project or an idea? Write to me.</p>
         <Magnetic href={`mailto:${LINKS.mail}`} className="mt-10 items-center gap-3 rounded-full bg-fg px-6 py-4 text-base text-bg md:px-8 md:py-5 md:text-lg">
           {LINKS.mail}
           <ArrowUpRight size={20} />

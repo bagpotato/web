@@ -1,4 +1,4 @@
 export const EDU = [
-  { title: 'Sistemas Microinformáticos y Redes (SMX)', place: 'ITB', meta: '2º curso', now: true },
-  { title: 'ESO', place: 'INS Nou Barris', meta: 'finalizada' }
+  { title: 'Microcomputer Systems and Networks (SMX)', place: 'ITB', meta: '2nd year', now: true },
+  { title: 'Compulsory Secondary Education (ESO)', place: 'INS Nou Barris', meta: 'Completed' }
 ];

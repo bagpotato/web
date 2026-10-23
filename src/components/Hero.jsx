@@ -5,7 +5,7 @@ import Magnetic from './Magnetic.jsx';
 const SOCIAL = [
   ['GitHub', LINKS.github, <i key="g" className="bi bi-github" />],
   ['LinkedIn', LINKS.linkedin, <i key="l" className="bi bi-linkedin" />],
-  ['Correo', `mailto:${LINKS.mail}`, <Mail key="m" size={18} />]
+  ['Email', `mailto:${LINKS.mail}`, <Mail key="m" size={18} />]
 ];
 
 export default function Hero() {
@@ -14,7 +14,7 @@ export default function Hero() {
       <div className="mx-auto w-full max-w-[1400px]">
         <h1 className="rise text-[clamp(3.2rem,11.5vw,11rem)] font-medium leading-[0.92] tracking-[-0.045em]">Juan David<br />Morales</h1>
         <div className="mt-12 grid gap-8 border-t border-line pt-8 md:grid-cols-[1fr_auto] md:items-end">
-          <p className="rise max-w-xl text-xl leading-snug md:text-2xl" style={{ '--i': 2 }}>Infraestructura, sistemas y seguridad. Estudiante de 2º de SMX en el ITB, Barcelona.</p>
+          <p className="rise max-w-xl text-xl leading-snug md:text-2xl" style={{ '--i': 2 }}>Infrastructure, systems and security. 2nd-year SMX student at ITB, Barcelona.</p>
           <ul className="rise flex gap-3" style={{ '--i': 3 }}>
             {SOCIAL.map(([label, href, icon]) => (
               <li key={label}>
