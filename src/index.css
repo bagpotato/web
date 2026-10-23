@@ -2,29 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root { --bg: 239 239 239; --fg: 10 10 10; --mute: 102 102 102; --line: 210 210 210; --card: 230 230 230; }
+.dark { --bg: 10 10 10; --fg: 237 237 237; --mute: 140 140 140; --line: 38 38 38; --card: 18 18 18; }
+
+body { font-family: 'Geist', system-ui, sans-serif; background: rgb(var(--bg)); color: rgb(var(--fg)); line-height: 1.6; transition: background-color .3s, color .3s; }
+::selection { background: rgb(var(--fg)); color: rgb(var(--bg)); }
+
+.rise { opacity: 0; animation: fadeup .9s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i, 0) * 90ms + 100ms); }
+@keyframes fadeup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .rise { animation: none; opacity: 1; } html { scroll-behavior: auto; } }
+
 html { scroll-behavior: smooth; }
 
-body { font-family: 'Archivo', system-ui, sans-serif; background: #efefef; color: #0a0a0a; font-size: 17px; line-height: 1.6; }
 
-::selection { background: #000; color: #efefef; }
 
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
-.wordmark { font-weight: 800; font-stretch: 100%; letter-spacing: -0.045em; line-height: 0.86; font-size: clamp(3rem, 12.5vw, 10.5rem); text-transform: uppercase; }
 
-.wm-line { display: block; overflow: hidden; padding-bottom: 0.05em; }
 
-.wm-ch { display: inline-block; transform: translateY(105%); animation: rise 0.9s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i) * 45ms + 150ms); }
 
-.ln { opacity: 0; animation: lineIn 0.5s ease-out forwards; animation-delay: var(--d, 0ms); }
 
-.dots { background-image: radial-gradient(#202020 1px, transparent 1px); background-size: 20px 20px; }
 
-.scan { position: relative; }
 
-.scan::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); }
 
-.dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: blink 1.8s steps(1) infinite; }
 
 .led { animation: blink 1.6s steps(1) infinite; }
 
@@ -32,11 +32,8 @@ body { font-family: 'Archivo', system-ui, sans-serif; background: #efefef; color
 
 .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 4.5s ease-in-out infinite; }
 
-.mail { background: linear-gradient(currentColor, currentColor) left bottom / 0 4px no-repeat; transition: background-size 0.45s cubic-bezier(.2, .8, .2, 1); padding-bottom: 0.12em; }
 
-.mail:hover, .mail:focus-visible { background-size: 100% 4px; }
 
-.game-canvas { background-image: radial-gradient(#2a2a2a 1px, transparent 1px); background-size: 20px 20px; }
 
 .fade-in { animation: fadeIn 0.18s ease-out; }
 

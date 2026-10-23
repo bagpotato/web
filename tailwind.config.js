@@ -1,17 +1,12 @@
+const c = (n) => `rgb(var(--${n}) / <alpha-value>)`;
+
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
-      colors: {
-        paper: '#efefef',
-        mist: '#e2e2e2',
-        line: '#c6c6c6',
-        steel: '#666666'
-      },
-      fontFamily: {
-        sans: ['Archivo', 'system-ui', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace']
-      }
+      colors: { bg: c('bg'), fg: c('fg'), mute: c('mute'), line: c('line'), card: c('card') },
+      fontFamily: { sans: ['Geist', 'system-ui', 'sans-serif'] }
     }
   }
 };
