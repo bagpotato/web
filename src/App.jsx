@@ -12,6 +12,8 @@ import Contact from './components/Contact.jsx';
 import Footer from './components/Footer.jsx';
 import ProjectViewer from './components/ProjectViewer.jsx';
 import Game from './components/Game.jsx';
+import Marquee from './components/Marquee.jsx';
+import Availability from './components/Availability.jsx';
 
 export default function App() {
   const [game, setGame] = useState(false);
@@ -22,6 +24,7 @@ export default function App() {
       <Header onPlay={() => setGame(true)} />
       <main>
         <Hero />
+        <Marquee />
         <Section id="proyectos" tone="dark" title="Proyectos y laboratorios" intro="Selecciona un monitor para ver el detalle del proyecto.">
           <Wall onOpen={setProject} />
         </Section>
@@ -33,6 +36,7 @@ export default function App() {
         <Section id="contacto" tone="dark" title="Contacto"><Contact /></Section>
       </main>
       <Footer />
+      <Availability />
       <ProjectViewer index={project} onClose={() => setProject(null)} />
       <Game open={game} onClose={() => setGame(false)} />
     </>

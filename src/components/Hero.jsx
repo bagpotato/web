@@ -2,6 +2,9 @@ import { LINKS, PHOTO } from '../data/links.js';
 import useClock from '../hooks/useClock.js';
 import Wordmark from './Wordmark.jsx';
 import MonitorBar from './MonitorBar.jsx';
+import Screen from './Screen.jsx';
+import ArtNet from './art/ArtNet.jsx';
+import { H } from '../data/styles.js';
 
 export default function Hero() {
   const time = useClock();
@@ -11,6 +14,9 @@ export default function Hero() {
     <section id="inicio" className="pt-32 md:pt-40 pb-20 md:pb-28">
       <div className="mx-auto max-w-[1280px] px-6 md:px-10">
         <Wordmark />
+        <p className="ln mt-8 flex flex-wrap gap-x-8 gap-y-1 text-2xl md:text-4xl font-bold" style={{ ...H, '--d': '700ms' }}>
+          <span>Redes</span><span>Sistemas</span><span>Seguridad</span>
+        </p>
         <div className="mt-12 md:mt-16 grid md:grid-cols-[1.2fr_1fr] gap-12 items-end">
           <div className="ln" style={{ '--d': '900ms' }}>
             <p className="text-xl md:text-2xl leading-snug max-w-lg">Estudiante de 2º SMX en el ITB. Especialista en Infraestructura y Sistemas.</p>
@@ -22,7 +28,7 @@ export default function Hero() {
           </div>
           <div className="ln bg-black text-white font-mono text-sm w-full max-w-md md:ml-auto" style={{ '--d': '1150ms' }}>
             <MonitorBar id="NOC-00" />
-            {PHOTO && <img src={PHOTO} alt="Juan David Morales Mendoza" className="w-full aspect-[4/3] object-cover grayscale border-b border-neutral-800" />}
+                        {PHOTO ? <img src={PHOTO} alt="Juan David Morales Mendoza" className="w-full aspect-[4/3] object-cover grayscale border-b border-neutral-800" /> : <Screen Art={ArtNet} />}
             <dl className="px-4 divide-y divide-neutral-800">
               {rows.map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-6 py-3">

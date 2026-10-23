@@ -67,3 +67,8 @@ body { font-family: 'Archivo', system-ui, sans-serif; background: #efefef; color
   .ln { opacity: 1; }
   .draw { stroke-dashoffset: 0; }
 }
+
+.marquee-track { animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
