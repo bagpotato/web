@@ -64,3 +64,16 @@ html { scroll-behavior: smooth; }
   .ln { opacity: 1; }
   .draw { stroke-dashoffset: 0; }
 }
+
+.pl { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: rgb(var(--bg)); transition: opacity .7s ease, visibility .7s; }
+.pl--out { opacity: 0; visibility: hidden; }
+.pl-star { width: clamp(72px, 16vw, 120px); height: auto; overflow: visible; animation: pl-pop 1.6s cubic-bezier(.22, 1, .36, 1) forwards; }
+.pl-arm { fill: rgb(var(--fg)); fill-opacity: 0; stroke: rgb(var(--fg)); stroke-width: .8; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: pl-draw 1.3s cubic-bezier(.65, 0, .35, 1) forwards, pl-fill .6s ease 1.3s forwards; }
+
+@keyframes pl-draw { to { stroke-dashoffset: 0; } }
+@keyframes pl-fill { to { fill-opacity: 1; } }
+@keyframes pl-pop { from { transform: rotate(-45deg) scale(.6); } to { transform: rotate(0) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-arm { stroke-dashoffset: 0; fill-opacity: 1; }
+}
