@@ -5,6 +5,7 @@ export default function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0a0a0a' : '#efefef');
     try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {}
   }, [dark]);
 

@@ -5,7 +5,7 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
-      colors: { bg: c('bg'), fg: c('fg'), mute: c('mute'), line: c('line'), card: c('card') },
+      colors: { bg: c('bg'), fg: c('fg'), mute: c('mute'), line: c('line'), card: c('card'), ground: c('ground'), onground: c('onground') },
       fontFamily: { sans: ['Geist', 'system-ui', 'sans-serif'] }
     }
   }

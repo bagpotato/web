@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react';
-import { Mail } from 'lucide-react';
+import { Github, Linkedin, Mail } from 'lucide-react';
 import { LINKS } from '../data/links.js';
 import Magnetic from './Magnetic.jsx';
 
 const TechModel = lazy(() => import('./TechModel.jsx'));
 
 const SOCIAL = [
-  ['GitHub', LINKS.github, <i key="g" className="bi bi-github" />],
-  ['LinkedIn', LINKS.linkedin, <i key="l" className="bi bi-linkedin" />],
+  ['GitHub', LINKS.github, <Github key="g" size={18} />],
+  ['LinkedIn', LINKS.linkedin, <Linkedin key="l" size={18} />],
   ['Email', `mailto:${LINKS.mail}`, <Mail key="m" size={18} />]
 ];
 
@@ -17,12 +17,15 @@ export default function Hero() {
       <div className="mx-auto w-full max-w-[1400px]">
         <div className="relative">
           <Suspense fallback={null}>
-            <TechModel className="rise mb-8 ml-auto h-40 w-40 sm:h-52 sm:w-52 md:absolute md:bottom-0 md:right-0 md:mb-0 md:h-[min(72svh,46rem)] md:w-[36%] md:max-w-[34rem]" />
+            <TechModel className="rise mb-8 ml-auto h-56 w-56 sm:h-64 sm:w-64 md:absolute md:bottom-0 md:right-0 md:mb-0 md:h-[min(72svh,46rem)] md:w-[36%] md:max-w-[34rem]" />
           </Suspense>
           <h1 className="rise w-fit text-[clamp(3.2rem,11.5vw,11rem)] font-medium leading-[0.92] tracking-[-0.045em]">Juan David<br />Morales</h1>
         </div>
         <div className="mt-12 grid gap-8 border-t border-line pt-8 md:grid-cols-[1fr_auto] md:items-end">
-          <p className="rise max-w-xl text-xl leading-snug md:text-2xl" style={{ '--i': 2 }}>Infrastructure, systems and security. 2nd-year SMX student at ITB, Barcelona.</p>
+          <div className="rise max-w-2xl" style={{ '--i': 2 }}>
+            <p className="text-xl leading-snug md:text-2xl">I make software that stays on your own machine: network audits, local AI agents, terminal games.</p>
+            <p className="mt-3 text-mute">2nd-year SMX student at ITB, Barcelona.</p>
+          </div>
           <ul className="rise flex gap-3" style={{ '--i': 3 }}>
             {SOCIAL.map(([label, href, icon]) => (
               <li key={label}>

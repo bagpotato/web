@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react';
 
 const ARM = 'M50 50C41 45 48 24 50 6C52 24 59 45 50 50Z';
+const REVEAL_AT = 1000;
+const GONE_AT = 1400;
 
-export default function Preloader({ onReveal }) {
+export default function Preloader() {
+  const [playing] = useState(() => document.documentElement.classList.contains('intro'));
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    const a = setTimeout(() => {
+    if (!playing) return undefined;
+    const reveal = setTimeout(() => {
+      document.documentElement.classList.remove('intro');
       setLeaving(true);
-      onReveal?.();
-    }, 2400);
-    const b = setTimeout(() => {
-      document.body.style.overflow = '';
-      setGone(true);
-    }, 3100);
+    }, REVEAL_AT);
+    const remove = setTimeout(() => setGone(true), GONE_AT);
     return () => {
-      clearTimeout(a);
-      clearTimeout(b);
-      document.body.style.overflow = '';
+      clearTimeout(reveal);
+      clearTimeout(remove);
     };
-  }, []);
+  }, [playing]);
 
-  if (gone) return null;
+  if (!playing || gone) return null;
 
   return (
     <div className={`pl ${leaving ? 'pl--out' : ''}`} aria-hidden="true">
