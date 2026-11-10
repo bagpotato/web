@@ -4,6 +4,7 @@ import ArtMail from '../components/art/ArtMail.jsx';
 import ArtRack from '../components/art/ArtRack.jsx';
 import ArtBrain from '../components/art/ArtBrain.jsx';
 import ArtGame from '../components/art/ArtGame.jsx';
+import ArtAscii from '../components/art/ArtAscii.jsx';
 
 export const WORK = [
   {
@@ -98,7 +99,6 @@ export const WORK = [
     tags: ['Python'],
     Art: ArtGame,
     canvas: true,
-    wide: true,
     summary: 'Eight games and a relaxing clock in one Python file: Snake, Wordle, Tetris, a roguelike, Game of Life, Hangman, Minesweeper and Pong. Pick one from the menu and play in your terminal.',
     points: [
       'Needs nothing but Python: no installs and no dependencies.',
@@ -107,5 +107,22 @@ export const WORK = [
       'Registers each game as one entry in a list, so adding another takes one line.'
     ],
     stack: ['Python', 'ANSI escape codes']
+  },
+  {
+    slug: 'ascii-chill',
+    repo: 'ascii-chill',
+    title: 'ascii · chill',
+    text: 'Calm ASCII animations to leave running in your terminal, generated in real time with NumPy.',
+    tags: ['Python', 'NumPy'],
+    Art: ArtAscii,
+    canvas: true,
+    summary: 'Five calm scenes drawn with colored ASCII characters: a black hole, Van Gogh’s Starry Night, a campfire, a cup of coffee and a sleeping cat. Each one draws itself in a few seconds and then loops.',
+    points: [
+      'Computes every frame as NumPy arrays, then maps brightness to characters and 24-bit color.',
+      'Opens with an intro: the scene traces itself before the loop begins.',
+      'Includes a menu to pick a scene with the arrow keys, or run any script on its own.',
+      'Adapts to the terminal size and lets you set the frame rate with --fps.'
+    ],
+    stack: ['Python', 'NumPy', 'ANSI truecolor']
   }
 ];
