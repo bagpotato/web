@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { BufferAttribute, BufferGeometry, Group, LineBasicMaterial, LineSegments, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { buildShapes, SEGMENTS, SHAPE_NAMES } from './techShapes.js';
+import { buildShapes, SEGMENTS, SHAPE_NAMES, TESSERACT, tesseract } from './techShapes.js';
+import { watchRendering } from '../hooks/watchRendering.js';
 
 const MORPH_MS = 1100;
 const STAGGER = 0.35;
@@ -11,10 +12,31 @@ const REPEL_FORCE = 0.55;
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
+// The shape picker is a toolbar: one tab stop, arrow keys between buttons. Browsers with
+// `focusgroup` do this natively; the others get a roving tabindex from the handlers below.
+const NATIVE_FOCUSGROUP = typeof HTMLElement !== 'undefined' && 'focusGroup' in HTMLElement.prototype;
+
 export default function TechModel({ className = '' }) {
   const host = useRef(null);
   const selectShape = useRef(null);
   const [active, setActive] = useState(0);
+  const [tabStop, setTabStop] = useState(0);
+  const modelId = useId();
+
+  const onToolbarKey = (e) => {
+    if (NATIVE_FOCUSGROUP) return;
+    const items = [...e.currentTarget.querySelectorAll('button')];
+    const rtl = getComputedStyle(e.currentTarget).direction === 'rtl';
+    const steps = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1 };
+    const i = items.indexOf(document.activeElement);
+    let next;
+    if (e.key in steps) next = (i + steps[e.key] + items.length) % items.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    else return;
+    e.preventDefault();
+    items[next].focus();
+  };
 
   useEffect(() => {
     const el = host.current;
@@ -66,7 +88,7 @@ export default function TechModel({ className = '' }) {
     let morphStart = null;
     let lastChange = performance.now();
     let dragging = false, downX = 0, downY = 0, moved = false, px = 0, py = 0, vx = 0;
-    let raf = 0, visible = true, frame = 0;
+    let raf = 0, running = false, frame = 0;
     let hover = 0, hovering = false, cursorX = 0, cursorY = 0, displaced = false;
 
     const select = (next) => {
@@ -182,12 +204,8 @@ export default function TechModel({ className = '' }) {
     canvas.addEventListener('pointerenter', enter);
     canvas.addEventListener('pointerleave', leave);
 
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
-    io.observe(el);
-
     const loop = (now) => {
       raf = requestAnimationFrame(loop);
-      if (!visible) return;
       if (frame++ % 30 === 0) setColor();
 
       if (!reduce && !hovering && !dragging && morphStart === null && now - lastChange > AUTO_MS) {
@@ -202,21 +220,38 @@ export default function TechModel({ className = '' }) {
       }
       group.updateMatrixWorld();
 
+      // The tesseract keeps rotating in 4D while it is the current shape.
+      const spin4d = index === TESSERACT && !reduce;
+      if (spin4d) tesseract(0.5 + now * 0.0008, shapes[TESSERACT]);
+
       const morphing = morphStart !== null;
       if (morphing) stepMorph(now);
+      else if (spin4d) base.set(target);
       hover += ((hovering && !dragging && !reduce ? 1 : 0) - hover) * 0.12;
-      if (morphing || hover >= 0.002 || displaced) {
+      if (morphing || spin4d || hover >= 0.002 || displaced) {
         writePositions();
         position.needsUpdate = true;
       }
       renderer.render(scene, camera);
     };
-    raf = requestAnimationFrame(loop);
+
+    // Render only while the browser renders the model; off screen the loop stops entirely.
+    const start = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+    const unwatch = watchRendering(el, (rendered) => (rendered ? start() : stop()));
+    start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      unwatch();
       ro.disconnect();
-      io.disconnect();
       canvas.removeEventListener('pointerdown', down);
       canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerup', up);
@@ -232,10 +267,12 @@ export default function TechModel({ className = '' }) {
 
   return (
     <div className={`relative ${className}`}>
-      <div ref={host} className="h-full w-full" role="img" aria-label="Interactive 3D shape. Drag to spin it, click to change it." />
-      <div role="group" aria-label="Choose a 3D shape" className="absolute inset-x-0 bottom-0 hidden justify-center gap-5 text-sm md:flex">
+      <div ref={host} id={modelId} className="h-full w-full" role="img" aria-label="Interactive 3D shape. Drag to spin it, click to change it." />
+      {/* w-max keeps the row at its natural width instead of squeezing the buttons into the
+          model's width; past the viewport it wraps (.shape-picker) rather than overflowing. */}
+      <div role="toolbar" aria-label="Choose a 3D shape" aria-controls={modelId} focusgroup="toolbar wrap" onKeyDown={onToolbarKey} className="shape-picker absolute bottom-0 right-0 hidden w-max max-w-[calc(100vw-5rem)] justify-end gap-x-4 text-sm md:flex xl:left-1/2 xl:right-auto xl:-translate-x-1/2 xl:justify-center">
         {SHAPE_NAMES.map((name, i) => (
-          <button key={name} type="button" aria-pressed={active === i} onClick={() => selectShape.current?.(i)} className={`min-h-11 min-w-11 underline-offset-4 transition-colors hover:text-fg ${active === i ? 'text-fg underline' : 'text-mute'}`}>{name}</button>
+          <button key={name} type="button" aria-pressed={active === i} tabIndex={NATIVE_FOCUSGROUP ? undefined : i === tabStop ? 0 : -1} onFocus={() => setTabStop(i)} onClick={() => selectShape.current?.(i)} className="min-h-11 min-w-11 shrink-0 whitespace-nowrap text-mute underline-offset-4 transition-colors hover:text-fg aria-pressed:text-fg aria-pressed:underline">{name}</button>
         ))}
       </div>
     </div>

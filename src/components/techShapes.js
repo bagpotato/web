@@ -29,31 +29,69 @@ const tube = (geometry, rows, cols) => {
   return lines;
 };
 
-const grid = (cells = 3, half = 1.05) => {
-  const step = (half * 2) / cells;
-  const lines = [];
-  for (let a = 0; a <= cells; a++) {
-    for (let b = 0; b <= cells; b++) {
-      const u = -half + a * step;
-      const v = -half + b * step;
-      lines.push(-half, u, v, half, u, v);
-      lines.push(u, -half, v, u, half, v);
-      lines.push(u, v, -half, u, v, half);
-    }
-  }
-  return lines;
+// The 16 vertices of a 4D hypercube, and its 32 edges: vertex pairs that differ on one axis.
+const HYPER = Array.from({ length: 16 }, (_, i) => [0, 1, 2, 3].map((b) => ((i >> b) & 1 ? 1 : -1)));
+const HYPER_EDGES = [];
+for (let i = 0; i < 16; i++) {
+  for (let b = 0; b < 4; b++) if (!(i & (1 << b))) HYPER_EDGES.push([i, i | (1 << b)]);
+}
+
+// A tesseract rotated by `angle` in the XW plane, then projected from 4D to 3D with
+// perspective, so the inner cube turns inside out as the angle grows. Writes into `out`
+// when given, so it can run every frame without allocating.
+export const tesseract = (angle, out) => {
+  const c = Math.cos(angle), s = Math.sin(angle);
+  const p = HYPER.map(([x, y, z, w]) => {
+    const rx = x * c - w * s, rw = x * s + w * c;
+    const f = (0.6 * 3) / (3 - rw);
+    return [rx * f, y * f, z * f];
+  });
+  return normalize(HYPER_EDGES.flatMap(([a, b]) => [...p[a], ...p[b]]), out);
 };
 
-const helix = (steps = 64, radius = 0.8, height = 1.7, turns = 2) => {
-  const point = (i, offset) => {
-    const a = (i / steps) * turns * Math.PI * 2 + offset;
-    return [Math.cos(a) * radius, (i / steps) * height * 2 - height, Math.sin(a) * radius];
-  };
+// Right-handed B-DNA. Each sugar-phosphate backbone is a ribbon (an outer and an inner
+// helix, tied at every nucleotide). Base pairs are flat slabs split in the middle, where
+// dashes stand for the hydrogen bonds: two for A–T, three for G–C. Pairs sit 36° apart
+// (10 per turn) and the strands are 140° apart, which leaves a wide major groove and a
+// narrow minor groove, as on real DNA.
+const dna = (pairs = 18, height = 1.75, outer = 0.8, inner = 0.66) => {
+  const twist = (Math.PI * 2) / 10;
+  const groove = (140 * Math.PI) / 180;
+  const rise = (height * 2) / (pairs - 1);
+  const slab = 0.035;
+  const at = (r, a, y) => [Math.cos(a) * r, y, -Math.sin(a) * r];
+  const lift = ([x, y, z], dy) => [x, y + dy, z];
   const lines = [];
-  for (let i = 0; i < steps; i++) {
-    lines.push(...point(i, 0), ...point(i + 1, 0));
-    lines.push(...point(i, Math.PI), ...point(i + 1, Math.PI));
-    if (i % 4 === 0) lines.push(...point(i, 0), ...point(i, Math.PI));
+  const seg = (p, q) => lines.push(...p, ...q);
+
+  for (const phase of [0, groove]) {
+    const SUB = 4;
+    for (let i = 0; i < (pairs - 1) * SUB; i++) {
+      const k0 = i / SUB, k1 = (i + 1) / SUB;
+      for (const r of [outer, inner]) {
+        seg(at(r, phase + k0 * twist, k0 * rise - height), at(r, phase + k1 * twist, k1 * rise - height));
+      }
+    }
+    for (let k = 0; k < pairs; k++) {
+      seg(at(outer, phase + k * twist, k * rise - height), at(inner, phase + k * twist, k * rise - height));
+    }
+  }
+
+  for (let k = 0; k < pairs; k++) {
+    const y = k * rise - height;
+    const a = at(inner, k * twist, y), b = at(inner, k * twist + groove, y);
+    const mix = (u) => a.map((v, j) => v + (b[j] - v) * u);
+    for (const [from, to] of [[0, 0.44], [1, 0.56]]) {
+      const p = mix(from), q = mix(to);
+      seg(lift(p, slab), lift(q, slab));
+      seg(lift(p, -slab), lift(q, -slab));
+      seg(lift(q, slab), lift(q, -slab));
+    }
+    const bonds = [0, 3, 4, 8, 11, 13, 16].includes(k) ? 3 : 2;
+    for (let n = 0; n < bonds; n++) {
+      const dy = (n - (bonds - 1) / 2) * 0.026;
+      seg(lift(mix(0.465), dy), lift(mix(0.535), dy));
+    }
   }
   return lines;
 };
@@ -80,9 +118,8 @@ const star = (reach = 1.8, core = 0.34) => {
   return lines;
 };
 
-function normalize(lines) {
+function normalize(lines, out = new Float32Array(SEGMENTS * 6)) {
   const count = lines.length / 6;
-  const out = new Float32Array(SEGMENTS * 6);
   const lerp = (a, b, t) => a + (b - a) * t;
   let write = 0;
 
@@ -99,15 +136,16 @@ function normalize(lines) {
 }
 
 // In the same order as buildShapes.
-export const SHAPE_NAMES = ['Sphere', 'Knot', 'Grid', 'Helix', 'Ring', 'Star'];
+export const SHAPE_NAMES = ['Sphere', 'Knot', 'Tesseract', 'DNA', 'Ring', 'Star'];
+export const TESSERACT = SHAPE_NAMES.indexOf('Tesseract');
 
 export function buildShapes() {
   return [
     wire(new IcosahedronGeometry(1.6, 1)),
     tube(new TorusKnotGeometry(0.95, 0.3, 72, 5), 72, 5),
-    grid(),
-    helix(),
+    tesseract(0.5),
+    dna(),
     tube(new TorusGeometry(1.2, 0.42, 10, 32), 10, 32),
     star()
-  ].map(normalize);
+  ].map((lines) => (lines instanceof Float32Array ? lines : normalize(lines)));
 }

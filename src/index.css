@@ -33,9 +33,96 @@ body { font-family: 'Geist', system-ui, sans-serif; background: rgb(var(--bg)); 
 .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 4.5s ease-in-out infinite; }
 .panel-in { animation: panelIn .35s cubic-bezier(.2, .8, .2, 1); }
 
+/* Hero shape buttons: wrap evenly instead of overflowing when the row runs out of room. */
+.shape-picker { flex-wrap: wrap; flex-wrap: balance; }
+
 .card-link::after { content: ''; position: absolute; inset: 0; }
 .card-link:focus-visible { outline: none; }
 .card-link:focus-visible::after { outline: 2px solid currentColor; outline-offset: -2px; }
+
+/* Projects wheel. Without motion it stays a plain grid (Tailwind classes in Work.jsx).
+   With motion the section gets tall, its stage sticks to the viewport, and --p (0 → 1)
+   spins the wheel so each card passes through the top. A scroll timeline drives --p;
+   older browsers get it from the scroll listener in Work.jsx. */
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+/* Padding lives here, not in Tailwind classes: Tailwind emits md: variants last, which would beat the overrides below. */
+.fan { padding: 7rem 1.5rem; }
+@media (min-width: 768px) { .fan { padding: 10rem 2.5rem; } }
+.fan-snap, .fan-hint { display: none; }
+
+/* Below 600px of height (landscape phones) the cards would shrink past legibility: keep the grid. */
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  html { scroll-snap-type: y proximity; }
+
+  .fan {
+    --w: min(clamp(250px, 23vw, 320px), calc((100svh - 13rem) / 1.5));
+    --h: calc(var(--w) * 1.5);
+    --r: calc(var(--w) * 2.6);
+    --step: 26deg;
+    --pace: 55svh;
+    --top: 11rem;
+    position: relative;
+    height: calc(100svh + (var(--n) - 1) * var(--pace));
+    padding: 0;
+    view-timeline: --fan block;
+  }
+  @media (max-width: 767px) {
+    .fan { --w: min(74vw, 290px, calc((100svh - 12rem) / 1.5)); --r: calc(var(--w) * 2.3); --step: 30deg; --top: 10rem; }
+  }
+
+  /* One snap point per card, so the wheel settles with a card on top. */
+  .fan-snap { display: block; position: absolute; top: calc(var(--i) * var(--pace)); width: 1px; height: 1px; scroll-snap-align: start; }
+
+  .fan-stage { position: sticky; top: 0; height: 100svh; overflow: clip; }
+  .fan-head { padding: 6rem 1.5rem 0; }
+  @media (min-width: 768px) { .fan-head { padding-inline: 2.5rem; } }
+
+  .fan-hint { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; padding-bottom: .5rem; }
+  .fan-bar { position: relative; width: 8rem; height: 2px; background: rgb(var(--line)); }
+  .fan-bar::after { content: ''; position: absolute; inset: 0; background: rgb(var(--fg)); transform-origin: left; scale: var(--p) 1; }
+
+  /* The wheel is a zero-size point (its center) below the top card. */
+  .fan-wheel {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: calc(var(--top) + var(--h) / 2 + var(--r));
+    width: 0;
+    height: 0;
+    margin: 0;
+    rotate: calc(var(--p) * (var(--n) - 1) * var(--step) * -1);
+  }
+  .fan-card {
+    position: absolute;
+    left: calc(var(--w) / -2);
+    top: calc(-1 * (var(--r) + var(--h) / 2));
+    width: var(--w);
+    height: var(--h);
+    transform-origin: 50% calc(var(--r) + var(--h) / 2);
+    rotate: calc(var(--i) * var(--step));
+  }
+  /* Distance (in cards) from the top slot shrinks and fades the cards on the sides. */
+  .fan-face {
+    --x: calc(var(--p) * (var(--n) - 1) - var(--i));
+    --d: min(max(var(--x), -1 * var(--x)), 2);
+    scale: calc(1 - var(--d) * .07);
+    opacity: calc(1 - var(--d) * .22);
+    box-shadow: 0 18px 40px -24px rgb(0 0 0 / .45);
+  }
+  .fan-art { aspect-ratio: 16 / 9; }
+  .fan-text { flex-shrink: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  @media (min-width: 1280px) and (min-height: 820px) { .fan-text { -webkit-line-clamp: 3; } }
+
+  @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
+    .fan-stage {
+      animation: fan-spin linear both;
+      animation-timeline: --fan;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}
+@keyframes fan-spin { from { --p: 0; } to { --p: 1; } }
 
 .pl { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: rgb(var(--bg)); transition: opacity .4s ease, visibility .4s; }
 .pl--out { opacity: 0; visibility: hidden; }

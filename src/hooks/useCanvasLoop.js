@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { watchRendering } from "./watchRendering.js";
 
 export function useCanvasLoop(init) {
   const ref = useRef(null);
@@ -8,7 +9,7 @@ export function useCanvasLoop(init) {
     const ctx = canvas.getContext("2d");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const draw = init(ctx);
-    let w = 0, h = 0, raf = 0, visible = true, frame = 0, color = "#ededed";
+    let w = 0, h = 0, raf = 0, running = false, frame = 0, color = "#ededed";
     const t0 = performance.now();
 
     const resize = () => {
@@ -23,9 +24,19 @@ export function useCanvasLoop(init) {
 
     const loop = (now) => {
       raf = requestAnimationFrame(loop);
-      if (!visible) return;
       if (frame++ % 20 === 0) color = getComputedStyle(canvas).color;
       draw(now - t0, w, h, color);
+    };
+
+    // The loop only runs while the browser renders the canvas; off screen it stops entirely.
+    const start = () => {
+      if (running || reduce) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
     };
 
     const still = () => {
@@ -39,16 +50,15 @@ export function useCanvasLoop(init) {
       if (reduce) still();
     });
     ro.observe(canvas);
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
-    io.observe(canvas);
+    const unwatch = watchRendering(canvas, (rendered) => (rendered ? start() : stop()));
 
     if (reduce) still();
-    else raf = requestAnimationFrame(loop);
+    else start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      unwatch();
       ro.disconnect();
-      io.disconnect();
     };
   }, []);
 
